@@ -1,41 +1,34 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { CreateAuthLoginDto } from './dto/create-login-auth.dto';
+import { CreateLoginAuthDto } from './dto/create-login-auth.dto';
+import { UserQueryService } from 'src/user/services/user-query/user-query.service';
 import { CreateRegisterAuthDto } from './dto/create-register-auth.dto';
+import { stat } from 'fs';
 
 @Injectable()
 export class AuthService {
 
   constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService
+    private readonly userQueryService: UserQueryService,
   ) {}
+  
+  async login(createAuthDto: CreateLoginAuthDto) {
+    const user = await this.validateUser(createAuthDto.email, createAuthDto.password);
+    return user;
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
-    }
-    throw new UnauthorizedException('Credenciais inválidas');
+    const user = await this.userQueryService.findByEmail(email);
+    if (!user) throw new UnauthorizedException('Usuário não existe!');
+    if (user.password !== password) throw new UnauthorizedException('Senha inválida!');
+    
+    return { status: 200, message: 'Usuário logado com sucesso!' };
   }
-
-  async login(createAuthDto: CreateAuthLoginDto) {
-    const user = await this.validateUser(createAuthDto.email, createAuthDto.password);
-    const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-
+  
   async register(createRegisterAuthDto: CreateRegisterAuthDto) {
-    const user = await this.userService.create(createRegisterAuthDto);
-    const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-
+    const user = await this.userQueryService.findByEmail(createRegisterAuthDto.email);
+    if (user) throw new UnauthorizedException('Usuário já existe!');
+    return await this.userQueryService.createRegister(createRegisterAuthDto);
   }
+
+
 }

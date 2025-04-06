@@ -1,6 +1,6 @@
-import { IsArray, IsEmail, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsString } from "class-validator";
 
-export class CreateUserDto {
+export class CreateRegisterAuthDto {
     @IsString()
     readonly username: string;
 
@@ -16,14 +16,6 @@ export class CreateUserDto {
     @IsEnum(['Scrum Master', 'Product Owner', 'Developer', 'Tester'])
     readonly role: string;
 
-    @IsArray()
-    @IsOptional()
-    readonly skills?: string[];
-
     @IsString()
-    @IsOptional()
-    readonly team?: string;
-
-    @IsString()
-    readonly password: string;
+    readonly password: string
 }

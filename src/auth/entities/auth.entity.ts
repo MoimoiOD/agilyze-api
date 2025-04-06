@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn } from "typeorm";
 
 @Entity()
 export class Auth {
@@ -11,5 +11,4 @@ export class Auth {
 
   @Column()
   password: string;
-
 }

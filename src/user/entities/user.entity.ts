@@ -1,11 +1,12 @@
-import { Auth } from "src/auth/entities/auth.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
-
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column({ unique: true })
+    username: string;
 
     @Column()
     name: string;
@@ -13,8 +14,18 @@ export class User {
     @Column()
     position: string;
 
-    @OneToOne(() => Auth, { cascade: true, eager: true })
-    @JoinColumn()
-    auth: Auth;
+    @Column({ unique: true })
+    email: string;
 
+    @Column()
+    role: string;
+
+    @Column("simple-array", { nullable: true })
+    skills?: string[];
+
+    @Column({ nullable: true })
+    team?: string;
+
+    @Column({ nullable: false })
+    password: string;
 }
